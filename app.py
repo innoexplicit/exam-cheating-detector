@@ -53,16 +53,26 @@ if uploaded_file is not None:
                     (-40, 40, -30), (40, 40, -30), (0, 75, -50)
                 ])
 
-                camera_matrix = np.array([[w, 0, w/2], [0, w, h/2], [0, 0, 1]], dtype='double')
-                dist = np.zeros((4,1))
+                camera_matrix = np.array([[w, 0, w / 2], [0, w, h / 2], [0, 0, 1]], dtype='double')
+                dist = np.zeros((4, 1))
                 _, rvec, tvec = cv2.solvePnP(model_points, image_points, camera_matrix, dist)
                 rotM = cv2.Rodrigues(rvec)[0]
                 proj = np.hstack((rotM, tvec))
                 yaw = cv2.decomposeProjectionMatrix(proj)[6][1][0]
 
-               cx, cy = int(lm[1].x * w), int(lm[1].y * h)
-try:
-    color = (0, 0, 255) if abs(yaw) > 15 else (0, 255, 0)
-except Exception as e:
-    print(f"Error calculating color: {e}")
-    color = (255, 255, 255)  # default color on error
+                cx, cy = int(lm[1].x * w), int(lm[1].y * h)
+                try:
+                    color = (0, 0, 255) if abs(yaw) > 15 else (0, 255, 0)
+                except Exception as e:
+                    print(f"Error calculating color: {e}")
+                    color = (255, 255, 255)  # fallback color
+
+                cv2.circle(image, (cx, cy), 5, color, -1)
+                label = "Cheating (Head Turn)" if abs(yaw) > 15 else "Normal"
+                cv2.putText(image, label, (cx + 10, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+            except Exception as e:
+                print(f"Face landmark processing error: {e}")
+
+    st.image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), caption='Processed Image', use_column_width=True)
+
