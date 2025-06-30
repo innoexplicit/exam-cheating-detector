@@ -60,8 +60,8 @@ if uploaded_file is not None:
                 proj = np.hstack((rotM, tvec))
                 yaw = cv2.decomposeProjectionMatrix(proj)[6][1][0]
 
-                cx, cy = int(lm[1].x * w), int(lm[1].y * h)
-                try:
+               cx, cy = int(lm[1].x * w), int(lm[1].y * h)
+try:
     color = (0, 0, 255) if abs(yaw) > 15 else (0, 255, 0)
 except Exception as e:
     print(f"Error calculating color: {e}")
